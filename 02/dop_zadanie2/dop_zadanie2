@@ -1,0 +1,69 @@
+[root@otuslinux ~]# lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda      8:0    0   40G  0 disk 
+L-sda1   8:1    0   40G  0 part /
+sdb      8:16   0   40G  0 disk 
+sdc      8:32   0  250M  0 disk 
+sdd      8:48   0  250M  0 disk 
+sde      8:64   0  250M  0 disk 
+sdf      8:80   0  250M  0 disk 
+sdg      8:96   0  250M  0 disk 
+
+
+sfdisk -d /dev/sda | sfdisk /dev/sdb
+parted /dev/sdb
+(parted) set 1 raid on
+(parted) set 1 boot on
+
+yum install mdadm vim
+mdadm --create /dev/md0 --level=1 --raid-disks=2 missing /dev/sdb1
+mkfs.xfs /dev/md0
+mount /dev/md0 /mnt
+rsync -avxu / /mnt/
+mount --bind /proc /mnt/proc && mount --bind /dev /mnt/dev && mount --bind /sys /mnt/sys && mount --bind /run /mnt/run && chroot /mnt/
+blkid |grep md 
+vim /etc/fstab 
+#закомментировать текущие параметры монтирования /
+#и добавить новые
+#============================================
+UUID=e5127685-2ac9-4ad2-9792-a59f9a40d29f / xfs defaults 0 0
+#============================================
+mdadm --detail --scan > /etc/mdadm.conf
+mv /boot/initramfs-$(uname -r).img /boot/initramfs-$(uname -r).img.bak
+dracut /boot/initramfs-$(uname -r).img $(uname -r)
+vim /etc/default/grub
+#добавить в параметр GRUB_CMDLINE_LINUX
+#uuid из файла /etc/mdadm.conf
+#============================
+rd.md.uuid=4b1141a4:aa945ee7:3fe30972:09ac07a0
+#============================
+grub2-mkconfig -o /boot/grub2/grub.cfg && grub2-install /dev/sdb
+cat /boot/grub2/grub.cfg
+/etc/selinux/config
+#=====================================
+SELINUX=permissive
+#=====================================
+restorecon -rv /
+reboot
+parted /dev/sda
+(parted) set 1 raid on
+mdadm --manage /dev/md0 --add /dev/sda1
+grub2-install /dev/sda
+cat /proc/mdstat
+
+[root@otuslinux ~]# lsblk
+NAME    MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda       8:0    0   40G  0 disk  
+└─sda1    8:1    0   40G  0 part  
+  └─md0   9:0    0   40G  0 raid1 /
+sdb       8:16   0   40G  0 disk  
+└─sdb1    8:17   0   40G  0 part  
+  └─md0   9:0    0   40G  0 raid1 /
+sdc       8:32   0  250M  0 disk  
+sdd       8:48   0  250M  0 disk  
+sde       8:64   0  250M  0 disk  
+sdf       8:80   0  250M  0 disk  
+sdg       8:96   0  250M  0 disk  
+
+
+

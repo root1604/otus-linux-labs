@@ -1,0 +1,75 @@
+#working with ZFS
+
+[root@lvm ~]# lsblk
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:7    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+sdc                          8:32   0    2G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:2    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:3    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:4    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:5    0  952M  0 lvm  
+  └─vg_var-lv_var          253:6    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+
+cat /etc/redhat-release
+yum install http://download.zfsonlinux.org/epel/zfs-release.el7_6.noarch.rpm
+vim /etc/yum.repos.d/zfs.repo
+#===============================
+[zfs]
+enabled=0
+[zfs-kmod]
+enabled=1
+#===============================
+yum install zfs
+reboot
+lsmod | grep zfs
+rsync -avxu /opt/ /mnt/
+rm -rf /opt
+zpool create -f opt /dev/sdb cache /dev/sde
+[root@lvm ~]# lsblk
+NAME                       MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                          8:0    0   40G  0 disk 
+├─sda1                       8:1    0    1M  0 part 
+├─sda2                       8:2    0    1G  0 part /boot
+└─sda3                       8:3    0   39G  0 part 
+  ├─VolGroup00-LogVol00    253:0    0    8G  0 lvm  /
+  ├─VolGroup00-LogVol01    253:1    0  1.5G  0 lvm  [SWAP]
+  └─VolGroup00-LogVol_Home 253:2    0    2G  0 lvm  /home
+sdb                          8:16   0   10G  0 disk 
+├─sdb1                       8:17   0   10G  0 part 
+└─sdb9                       8:25   0    8M  0 part 
+sdc                          8:32   0    2G  0 disk 
+├─vg_var-lv_var_rmeta_0    253:3    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_0   253:4    0  952M  0 lvm  
+  └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+sdd                          8:48   0    1G  0 disk 
+├─vg_var-lv_var_rmeta_1    253:5    0    4M  0 lvm  
+│ └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+└─vg_var-lv_var_rimage_1   253:6    0  952M  0 lvm  
+  └─vg_var-lv_var          253:7    0  952M  0 lvm  /var
+sde                          8:64   0    1G  0 disk 
+├─sde1                       8:65   0 1014M  0 part 
+└─sde9                       8:73   0    8M  0 part 
+
+rsync -avxu /mnt/ /opt/
+
+#working with snapshots
+zfs snapshot opt@snapshot1
+zfs set snapdir=visible opt
+zfs set snapdir=hidden opt
+mount -t zfs opt@snapshot1 /mnt
+umount /mnt
+zfs destroy opt@snapshot1
+

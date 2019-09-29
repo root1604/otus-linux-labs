@@ -1,0 +1,28 @@
+---
+# tasks file for homework10
+- name: Copy file with owner and permissions
+  copy:
+    src: sshd
+    dest: /etc/pam.d/sshd
+    owner: root
+    group: root
+    mode: '0644'
+- name: Copy file with owner and permissions
+  copy:
+    src: test_login.sh
+    dest: /usr/local/bin/test_login.sh
+    owner: root
+    group: root
+    mode: '0755'
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes

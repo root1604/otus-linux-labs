@@ -1,0 +1,7 @@
+---
+- name: homework10
+  hosts: otuslinux
+  become: true
+  
+  roles:
+  - role: homework10

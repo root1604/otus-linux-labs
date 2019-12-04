@@ -1,0 +1,165 @@
+---
+# tasks file for bacula_server
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: wget
+  yum:
+    name: wget
+    state: latest    
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: firewalld permits 9101-9103/tcp
+  firewalld:
+    port: 9101-9103/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: Download bacula-libs
+  get_url:
+    url: https://bacula.org/packages/5cee4d079821e/rpms/9.4.4/el7/x86_64/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    dest: /root/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    mode: '0440'
+- name: Download bacula-mysql
+  get_url:
+    url:  https://bacula.org/packages/5cee4d079821e/rpms/9.4.4/el7/x86_64/bacula-mysql-9.4.4-1.el7.x86_64.rpm
+    dest: /root/bacula-mysql-9.4.4-1.el7.x86_64.rpm
+    mode: '0440'
+- name: install bacula-libs
+  yum:
+    name: /root/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    state: present
+- name: install bacula-libs
+  yum:
+    name: /root/bacula-mysql-9.4.4-1.el7.x86_64.rpm
+    state: present
+- name: install the latest version of mariadb-server
+  yum:
+    name:  mariadb-server
+    state: latest
+- name: enable service mariadb-server and ensure it is not masked
+  systemd:
+    name: mariadb
+    enabled: yes
+    masked: no
+- name: Make sure mariadb-server is running
+  systemd:
+    state: started
+    name: mariadb
+- name: Adds Python MySQL support on RedHat/CentOS
+  yum: name=MySQL-python state=present
+  when: ansible_os_family == 'RedHat'  
+- name: Sets the root password
+  mysql_user: user=root password="12345"
+- name: Disallow root login remotely
+  command:  mysql -u root -p12345 --execute="DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1','{{ ansible_fqdn }}')"
+- name: Deletes anonymous MySQL server user for ansible_fqdn
+  mysql_user: user="" host="{{ ansible_fqdn }}" state="absent" login_user="root" login_password="12345"
+- name: Deletes anonymous MySQL server user for localhost
+  mysql_user: user="" state="absent"  login_user="root" login_password="12345"   
+- name: Secures the MySQL root user for IPV6 localhost (::1)
+  mysql_user: user="root" password="12345" host="::1"  login_user="root" login_password="12345"
+- name: Secures the MySQL root user for IPV4 localhost (127.0.0.1)
+  mysql_user: user="root" password="12345" host="127.0.0.1"  login_user="root" login_password="12345"
+- name: Secures the MySQL root user for localhost domain (localhost)
+  mysql_user: user="root" password="12345" host="localhost"  login_user="root" login_password="12345"
+- name: Secures the MySQL root user for server_hostname domain
+  mysql_user: user="root" password="12345" host="{{ ansible_fqdn }}"  login_user="root" login_password="12345" 
+- name: Removes the MySQL test database
+  mysql_db: db=test state=absent login_user="root" login_password="12345"  
+- name: creates the MySQL bacula database
+  mysql_db: db=bacula state=present login_user="root" login_password="12345" 
+- name: Copy file with owner and permissions
+  copy:
+    src: create_tables.sql
+    dest: /opt/bacula/scripts/create_tables.sql
+    owner: root
+    group: bacula
+    mode: '0660'        
+- name: Import file.sql similar to mysql -u <username> -p <password> < hostname.sql
+  mysql_db:
+    state: import
+    name: bacula
+    target: /opt/bacula/scripts/create_tables.sql 
+    login_user: "root"
+    login_password: "12345"       
+- name: Create database user with name 'bacula' and password 'bacula' with all database privileges
+  mysql_user:
+    login_user: "root"
+    login_password: "12345"
+    name: bacula
+    host: localhost
+    password: bacula
+    priv: 'bacula.*:ALL'
+    state: present  
+- name: Execute the command in remote shell
+  shell: ln -s /opt/bacula/bin/* /usr/bin/
+- name: Copy file with owner and permissions
+  copy:
+    src: bacula-dir.conf
+    dest: /opt/bacula/etc/bacula-dir.conf
+    owner: root
+    group: bacula
+    mode: '0660' 
+- name: Copy file with owner and permissions
+  copy:
+    src: bacula-sd.conf
+    dest: /opt/bacula/etc/bacula-sd.conf
+    owner: root
+    group: disk
+    mode: '0660'           
+- name: Copy file with owner and permissions
+  copy:
+    src: bacula-fd.conf
+    dest: /opt/bacula/etc/bacula-fd.conf
+    owner: root
+    group: bacula
+    mode: '0660'     
+- name: Copy file with owner and permissions
+  copy:
+    src: bconsole.conf
+    dest: /opt/bacula/etc/bconsole.conf
+    owner: root
+    group: bacula
+    mode: '0660'     
+- name: sql query flush
+  command:  mysql -u root -p12345 --execute="FLUSH PRIVILEGES"
+- name: Make sure mariadb-server is running
+  systemd:
+    state: restarted
+    name: mariadb
+- name: Execute the command in remote shell
+  command: mkdir -p /opt/bacula/log  
+- name: Execute the command in remote shell
+  command: touch /opt/bacula/log/bacula.log
+- name: Execute the command in remote shell
+  command: chown bacula:bacula /opt/bacula/log/ -R 
+- name: Execute the command in remote shell
+  command: mkdir -p /opt/bacula/backups  
+- name: Execute the command in remote shell
+  command: chown bacula:bacula /opt/bacula/backups/ -R           
+- name: Execute the command in remote shell
+  command: bacula start
+- name: Execute the command in remote shell
+  reboot:    
+    

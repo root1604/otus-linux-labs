@@ -1,0 +1,7 @@
+---
+- name: bacula_client
+  hosts: client
+  become: true
+  
+  roles:
+  - role: bacula_client

@@ -1,0 +1,73 @@
+---
+# tasks file for bacula_server
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: wget
+  yum:
+    name: wget
+    state: latest    
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: firewalld permits 9102/tcp
+  firewalld:
+    port: 9102/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: Download bacula-libs
+  get_url:
+    url: https://bacula.org/packages/5cee4d079821e/rpms/9.4.4/el7/x86_64/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    dest: /root/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    mode: '0440'
+- name: Download bacula-client
+  get_url:
+    url:  https://bacula.org/packages/5cee4d079821e/rpms/9.4.4/el7/x86_64/bacula-client-9.4.4-1.el7.x86_64.rpm
+    dest: /root/bacula-client-9.4.4-1.el7.x86_64.rpm
+    mode: '0440'
+- name: install bacula-libs
+  yum:
+    name: /root/bacula-libs-9.4.4-1.el7.x86_64.rpm
+    state: present
+- name: install bacula-client
+  yum:
+    name: /root/bacula-client-9.4.4-1.el7.x86_64.rpm
+    state: present
+- name: Copy file with owner and permissions
+  copy:
+    src: bacula-fd.conf
+    dest: /opt/bacula/etc/bacula-fd.conf
+    owner: root
+    group: bacula
+    mode: '0660' 
+- name: enable service bacula-fd and ensure it is not masked
+  systemd:
+    name: bacula-fd
+    enabled: yes
+    masked: no
+- name: Make sure bacula-fd is running
+  systemd:
+    state: started
+    name: bacula-fd
+- name: Execute the command in remote shell
+  reboot:     

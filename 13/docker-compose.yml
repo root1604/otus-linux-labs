@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  web:
+    image: root1604/nginx1
+    container_name: web
+    depends_on:
+      - php
+    ports:
+      - "80:80"
+    volumes:
+      - ./code:/code
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+    networks:
+      code-network:
+        ipv4_address: 10.20.30.10
+        aliases:
+          - web
+  php:
+    image: root1604/php-fpm
+    container_name: php
+    volumes:
+      - ./code:/code
+    networks:
+      code-network:
+        ipv4_address: 10.20.30.20
+        aliases:
+          - php
+
+networks:
+  code-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.20.30.0/24

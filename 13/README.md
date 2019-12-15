@@ -1,8 +1,8 @@
 # Домашнее задание 13
 
-Создайте свой кастомный образ nginx на базе alpine. После запуска nginx должен
+Создайте свой [кастомный образ nginx на базе alpine](1/Dockerfile). После запуска nginx должен
 отдавать кастомную страницу (достаточно изменить дефолтную страницу nginx)<br>
-https://hub.docker.com/r/root1604/nginx
+https://hub.docker.com/r/root1604/alpine-nginx
 
 Определите разницу между контейнером и образом<br>
 Образ - это шаблон для создания контейнеров.<br>
@@ -13,13 +13,15 @@ https://hub.docker.com/r/root1604/nginx
 Можно.<br>
 <br>
 Задание со * (звездочкой)<br>
-Создайте кастомные образы [nginx](https://hub.docker.com/r/root1604/nginx1) и [php](https://hub.docker.com/r/root1604/php-fpm), объедините их в [docker-compose](docker-compose.yml).
+Создайте кастомные образы [nginx](1/Dockerfile) и [php](2/php-fpm/Dockerfile), объедините их в [docker-compose](2/docker-compose.yml).
 После запуска nginx должен показывать php info.
 Все собранные образы должны быть в docker hub<br>
+[nginx](https://hub.docker.com/r/root1604/alpine-nginx)<br>
+[php-fpm](https://hub.docker.com/r/root1604/alpine-php-fpm)<br>
 <br>
 Инструкция по запуску стенда<br>
 <br>
-DNS-имя docker.local должно разрешаться в ip-адрес хоста, на котором будет запускаться стенд.<br>
+DNS-имя docker.local должно разрешаться в ip-адрес хоста (по которому докер-хост доступен по сети), на котором будет запускаться стенд.<br>
 <br>
 Структура файлов<br>
 <br>
@@ -28,7 +30,10 @@ tree<br>
 ├── code<br>
 │   └── index.php<br>
 ├── docker-compose.yml<br>
+├── php-fpm<br>
+│   └── Dockerfile<br>
 └── site.conf<br>
+
 <br>
 запуск из текущей папки<br>
 <br>

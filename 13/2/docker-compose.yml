@@ -1,14 +1,14 @@
 version: "3.7"
 services:
   web:
-    image: root1604/nginx1
+    image: root1604/alpine-nginx
     container_name: web
     depends_on:
       - php
-    ports:
+    ports: 
       - "80:80"
     volumes:
-      - ./code:/code
+      - ./code:/code 
       - ./site.conf:/etc/nginx/conf.d/site.conf
     networks:
       code-network:
@@ -16,7 +16,7 @@ services:
         aliases:
           - web
   php:
-    image: root1604/php-fpm
+    image: root1604/alpine-php-fpm
     container_name: php
     volumes:
       - ./code:/code

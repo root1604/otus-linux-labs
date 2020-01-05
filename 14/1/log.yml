@@ -1,0 +1,7 @@
+---
+- name: log
+  hosts: log
+  become: true
+  
+  roles:
+  - role: log

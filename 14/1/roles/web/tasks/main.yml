@@ -1,0 +1,90 @@
+---
+# tasks file for web
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: epel-release
+  yum:
+    name: epel-release
+    state: latest    
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: firewalld permits 80/tcp
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: install the latest version of nginx
+  yum:
+    name:  nginx
+    state: latest
+- name: enable service nginx and ensure it is not masked
+  systemd:
+    name: nginx
+    enabled: yes
+    masked: no
+- name: Make sure nginx is running
+  systemd:
+    state: started
+    name: nginx      
+- name: Copy file with owner and permissions
+  copy:
+    src: audit.rules
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: '0600'   
+- name: restart auditd
+  command: service auditd restart
+- rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+- name: Copy file with owner and permissions
+  copy:
+    src: elastic.repo
+    dest: /etc/yum.repos.d/elastic.repo
+    owner: root
+    group: root
+    mode: '0644'
+- name: install the latest version of filebeat
+  yum:
+    name:  filebeat
+    state: latest 
+- name: Copy file with owner and permissions
+  copy:
+    src: filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0600'  
+- name: enable service filebeat and ensure it is not masked
+  systemd:
+    name: filebeat
+    enabled: yes
+    masked: no
+- name: Make sure filebeat is running
+  systemd:
+    state: restarted
+    name: filebeat         
+

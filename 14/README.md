@@ -27,6 +27,7 @@
 во вторую систему все остальное
 
 Примечание к заданию 2<br>
+Стенд разворачивается из [Vagrantfile](2/Vagrantfile) с помощью ролей ansible [log.yml](2/log.yml) (сервер ELK 192.168.11.101),  [web.yml](2/web.yml) (Nginx 192.168.11.102) и [rsyslog.yml](2/rsyslog.yml) (сервер Rsyslog 192.168.11.103)<br>
 В ELK идут только файлы /var/log/nginx/error.log и /var/log/nginx/access.log<br>
 Для генерации записей в лог-файлах открыть в браузере http://192.168.11.102, на котором установлен nginx. <br>
 Просмотр логов в ELK<br>

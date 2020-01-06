@@ -1,0 +1,7 @@
+---
+- name: rsyslog
+  hosts: rsyslog
+  become: true
+  
+  roles:
+  - role: rsyslog

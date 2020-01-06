@@ -1,0 +1,108 @@
+---
+# tasks file for log
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: firewalld permits 5044/tcp
+  firewalld:
+    port: 5044/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: firewalld permits 5601/tcp
+  firewalld:
+    port: 5601/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+- name: install the latest version of java
+  yum:
+    name:  java
+    state: latest
+- rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+- name: Copy file with owner and permissions
+  copy:
+    src: elastic.repo
+    dest: /etc/yum.repos.d/elastic.repo
+    owner: root
+    group: root
+    mode: '0644'
+- name: install the latest version of elasticsearch
+  yum:
+    name:  elasticsearch
+    state: latest
+- name: enable service elasticsearch and ensure it is not masked
+  systemd:
+    name: elasticsearch
+    enabled: yes
+    masked: no
+- name: Make sure elasticsearch is running
+  systemd:
+    state: started
+    daemon_reload: yes
+    name: elasticsearch
+- name: install the latest version of kibana
+  yum:
+    name:  kibana
+    state: latest
+- name: Copy file with owner and permissions
+  copy:
+    src: kibana.yml
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: '0644'    
+- name: enable service kibana and ensure it is not masked
+  systemd:
+    name: kibana
+    enabled: yes
+    masked: no
+- name: Make sure kibana is running
+  systemd:
+    state: started
+    name: kibana   
+- name: install the latest version of logstash
+  yum:
+    name:  logstash
+    state: latest
+- name: Copy file with owner and permissions
+  copy:
+    src: logstash.service
+    dest: /etc/systemd/system/logstash.service
+    owner: root
+    group: root
+    mode: '0644'
+- name: enable service logstash and ensure it is not masked
+  systemd:
+    name: logstash
+    enabled: yes
+    masked: no
+- name: Make sure logstash is running
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: logstash       

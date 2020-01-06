@@ -1,0 +1,47 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "log" do |log|
+    log.vm.box = "centos/7"
+    log.vm.hostname = "log"
+    log.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+    end
+    log.vm.network "private_network", ip: "192.168.11.101"
+    log.vm.provision "shell", inline: <<-SHELL
+      mkdir -p ~root/.ssh
+      cp ~vagrant/.ssh/auth* ~root/.ssh
+    SHELL
+    log.vm.provision :ansible do |ansible|
+      ansible.playbook = "log.yml"
+    end
+  end
+  config.vm.define "web" do |web|
+    web.vm.box = "centos/7"
+    web.vm.hostname = "web"
+    web.vm.provider "virtualbox" do |vb|
+      vb.memory = "512"
+    end
+    web.vm.network "private_network", ip: "192.168.11.102"
+    web.vm.provision "shell", inline: <<-SHELL
+      mkdir -p ~root/.ssh
+      cp ~vagrant/.ssh/auth* ~root/.ssh
+    SHELL
+    web.vm.provision :ansible do |ansible|
+      ansible.playbook = "web.yml"
+    end
+  end
+  config.vm.define "rsyslog" do |rsyslog|
+    rsyslog.vm.box = "centos/7"
+    rsyslog.vm.hostname = "rsyslog"
+    rsyslog.vm.provider "virtualbox" do |vb|
+      vb.memory = "512"
+    end
+    rsyslog.vm.network "private_network", ip: "192.168.11.103"
+    rsyslog.vm.provision "shell", inline: <<-SHELL
+      mkdir -p ~root/.ssh
+      cp ~vagrant/.ssh/auth* ~root/.ssh
+    SHELL
+    rsyslog.vm.provision :ansible do |ansible|
+      ansible.playbook = "rsyslog.yml"
+    end
+  end
+end

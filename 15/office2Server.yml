@@ -1,0 +1,7 @@
+---
+- name: office2Server
+  hosts: office2Server
+  become: true
+  
+  roles:
+  - role: office2Server

@@ -1,0 +1,7 @@
+---
+- name: office2Router
+  hosts: office2Router
+  become: true
+  
+  roles:
+  - role: office2Router

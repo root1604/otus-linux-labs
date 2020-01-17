@@ -1,0 +1,47 @@
+---
+# tasks file for inetRouter
+- name: install SELinux python bindings for libselinux
+  yum:
+    name:  libselinux-python
+    state: latest  
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: Copy file with owner and permissions
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    owner: root
+    group: root
+    mode: '0644'
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: Create Iptables NAT chain
+  iptables:
+    table: nat
+    chain: POSTROUTING
+    out_interface: 'eth0'
+    source: '0.0.0.0/0'
+    destination: '0.0.0.0/0'
+    jump: MASQUERADE
+    protocol: 'all'
+    comment: Ansible NAT Masquerade  
+- name: service iptables save
+  command: service iptables save
+- name: service iptables restart
+  command: service iptables restart
+- name: restart network
+  command: service network restart

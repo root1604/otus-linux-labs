@@ -1,0 +1,26 @@
+---
+# tasks file for centralServer
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: Ensure DEFROUTE=no for eth0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^DEFROUTE='
+    line: DEFROUTE=no  
+- name: Set GATEWAY=192.168.0.1 for eth1
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    regexp: '^GATEWAY='
+    line: GATEWAY=192.168.0.1    
+- name: Reboot 
+  reboot:

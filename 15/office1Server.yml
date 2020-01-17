@@ -1,0 +1,7 @@
+---
+- name: office1Server
+  hosts: office1Server
+  become: true
+  
+  roles:
+  - role: office1Server

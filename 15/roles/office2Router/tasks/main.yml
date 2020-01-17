@@ -1,0 +1,40 @@
+---
+# tasks file for office2Router
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: Copy file with owner and permissions
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    owner: root
+    group: root
+    mode: '0644'
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: Ensure DEFROUTE=no for eth0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^DEFROUTE='
+    line: DEFROUTE=no  
+
+- name: Set GATEWAY=192.168.0.33 for eth1
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    regexp: '^GATEWAY='
+    line: GATEWAY=192.168.0.33   
+- name: Reboot 
+  reboot: 

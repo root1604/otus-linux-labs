@@ -1,0 +1,7 @@
+---
+- name: client
+  hosts: client
+  become: true
+  
+  roles:
+  - role: client

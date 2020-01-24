@@ -1,0 +1,62 @@
+---
+# tasks file for freeipa
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '.*freeipa.example.local.*'
+    line: '192.168.11.101 freeipa.example.local freeipa'   
+- name: install the latest version of nss
+  yum:
+    name:  nss
+    state: latest
+- name: install the latest version of ipa-server
+  yum:
+    name:  ipa-server
+    state: latest
+- name: install the latest version of ipa-server-dns
+  yum:
+    name:  ipa-server-dns
+    state: latest
+- name: ipa-server-install
+  shell:
+    cmd: ipa-server-install --domain=example.local --realm=EXAMPLE.LOCAL --ds-password=password --admin-password=password --hostname=freeipa.example.local --ip-address=192.168.11.101 --reverse-zone=11.168.192.in-addr.arpa. --forwarder=8.8.8.8 --setup-dns --unattended
+- firewalld:
+    service: freeipa-ldap
+    permanent: yes
+    immediate: yes
+    state: enabled    
+- firewalld:
+    service: freeipa-ldaps
+    permanent: yes
+    immediate: yes
+    state: enabled    
+- firewalld:
+    service: dns
+    permanent: yes
+    immediate: yes
+    state: enabled        

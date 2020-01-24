@@ -1,0 +1,96 @@
+---
+# tasks file for client
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: vim
+  yum:
+    name: vim
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    regexp: '.*client.example.local.*'
+    line: '192.168.11.102 client.example.local client'   
+- name: DNS
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    regexp: '^DNS1='
+    line: 'DNS1="192.168.11.101"'
+- name: /etc/NetworkManager/NetworkManager.conf
+  lineinfile:
+    dest: /etc/NetworkManager/NetworkManager.conf
+    line: 'dns=none'
+    insertafter: '^\[main\]'
+- name: restart NetworkManager
+  systemd:
+    state: restarted
+    name: NetworkManager
+- name: clear /etc/resolv.conf
+  shell:
+    cmd: :> /etc/resolv.conf
+- name: /etc/resolv.conf
+  lineinfile:
+    path: /etc/resolv.conf
+    regexp: '^search'
+    line: 'search example.local'
+- name: /etc/resolv.conf
+  lineinfile:
+    path: /etc/resolv.conf
+    regexp: '.*nameserver 192.168.11.101.*'
+    line: 'nameserver 192.168.11.101'   
+- name: install the latest version of nss
+  yum:
+    name:  nss
+    state: latest
+- name: install the latest version of ipa-client
+  yum:
+    name:  ipa-client
+    state: latest
+- name: ipa-client-install
+  shell:
+    cmd: ipa-client-install --domain 'example.local' --principal 'admin' --password 'password' --unattended
+- name: ssh-keygen
+  shell:
+    cmd: ssh-keygen -q -t rsa -N 'password' -f ~/.ssh/id_rsa <<< y
+- name: kinit admin
+  shell:
+    cmd: echo 'password' | kinit admin    
+- name: ipa user-mod
+  shell:
+    cmd: ipa user-mod admin --sshpubkey="$(cat ~/.ssh/id_rsa.pub)"   
+- name: AuthorizedKeysCommand
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#AuthorizedKeysCommand none'
+    line: 'AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys'     
+- name: AuthorizedKeysCommandUser
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#AuthorizedKeysCommandUser'
+    line: 'AuthorizedKeysCommandUser nobody'  
+- name: systemctl restart sshd 
+  systemd:
+    state: restarted
+    name: sshd     
+- name: kdestroy
+  shell:
+    cmd: kdestroy

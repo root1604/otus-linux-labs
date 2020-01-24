@@ -10,7 +10,7 @@ LDAP
 Сервер freeipa.example.local 192.168.11.101<br>
 Клиент client.example.local 192.168.11.102<br><br>
 
-Для проверки залогинимся как root на клиенте и зайдем по ssh с клиента на сервер (пароль на ssh-ключ 'password')
+Для проверки залогинимся как root на клиенте и зайдем по ssh с клиента на сервер (пароль на ssh-ключ 'password')<br>
 \# ssh -vvv admin@freeipa.example.local
 
 После этого выйдем и зайдем, авторизуясь через kerberos (пароль 'password')<br>

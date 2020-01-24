@@ -7,12 +7,12 @@ LDAP
 
 Стенд разворачивается из [Vagrantfile](Vagrantfile) с помощью ролей ansible [freeipa.yml](freeipa.yml) и [client.yml](client.yml)
 
-Сервер freeipa.example.local 192.168.11.101
-Клиент client.example.local 192.168.11.102
+Сервер freeipa.example.local 192.168.11.101<br>
+Клиент client.example.local 192.168.11.102<br><br>
 
 Для проверки залогинимся как root на клиенте и зайдем по ssh с клиента на сервер (пароль на ssh-ключ 'password')
-# ssh -vvv admin@freeipa.example.local
+\# ssh -vvv admin@freeipa.example.local
 
-После этого выйдем и зайдем, авторизуясь через kerberos (пароль 'password')
-# kinit admin
-# ssh -vvv admin@freeipa.example.local
+После этого выйдем и зайдем, авторизуясь через kerberos (пароль 'password')<br>
+\# kinit admin<br>
+\# ssh -vvv admin@freeipa.example.local

@@ -1,0 +1,53 @@
+---
+# tasks file for inetRouter2
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: 'True' 
+- name: firewall-cmd --change-interface=eth1
+  shell:
+    cmd: firewall-cmd --permanent --zone=internal --change-interface=eth1
+- firewalld:
+    masquerade: yes
+    state: enabled
+    permanent: yes
+    zone: internal
+- name: Redirect port 80 to 80 
+  firewalld:
+    rich_rule: rule family=ipv4 forward-port port=80 protocol=tcp to-port=80 to-addr=192.168.0.2
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled 
+- name: Copy file with owner and permissions
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    owner: root
+    group: root
+    mode: '0644'
+- name: Reboot 
+  reboot:

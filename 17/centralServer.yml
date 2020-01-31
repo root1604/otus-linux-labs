@@ -1,0 +1,7 @@
+---
+- name: centralServer
+  hosts: centralServer
+  become: true
+  
+  roles:
+  - role: centralServer

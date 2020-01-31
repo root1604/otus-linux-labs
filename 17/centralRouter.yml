@@ -1,0 +1,7 @@
+---
+- name: centralRouter
+  hosts: centralRouter
+  become: true
+  
+  roles:
+  - role: centralRouter

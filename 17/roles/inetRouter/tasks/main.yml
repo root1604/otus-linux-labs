@@ -1,0 +1,57 @@
+---
+# tasks file for inetRouter
+- name: install SELinux python bindings for libselinux
+  yum:
+    name:  libselinux-python
+    state: latest  
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: /etc/ssh/sshd_config PermitPasswordAuthentication no
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication no'
+    line: '#PasswordAuthentication no' 
+- name: /etc/ssh/sshd_config PermitPasswordAuthentication yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#PasswordAuthentication yes'
+    line: 'PasswordAuthentication yes' 
+
+- name: service sshd restart
+  command: service sshd restart
+- name: Copy file with owner and permissions
+  copy:
+    src: route-eth1
+    dest: /etc/sysconfig/network-scripts/route-eth1
+    owner: root
+    group: root
+    mode: '0644'
+- name: Copy file with owner and permissions
+  copy:
+    src: iptables
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+    mode: '0600'
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: service iptables save
+  command: service iptables save
+- name: service iptables restart
+  command: service iptables restart
+- name: restart network
+  command: service network restart

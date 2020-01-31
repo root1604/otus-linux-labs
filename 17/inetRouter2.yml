@@ -1,0 +1,7 @@
+---
+- name: inetRouter2
+  hosts: inetRouter2
+  become: true
+  
+  roles:
+  - role: inetRouter2

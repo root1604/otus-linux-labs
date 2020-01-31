@@ -1,0 +1,72 @@
+---
+# tasks file for centralRouter
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: Copy file knock.sh with owner and permissions
+  copy:
+    src: knock.sh
+    dest: /home/vagrant/knock.sh
+    owner: vagrant
+    group: vagrant
+    mode: '0744'
+- name: Copy file knock.sh with owner and permissions
+  copy:
+    src: knock.sh
+    dest: /root/knock.sh
+    owner: root
+    group: root
+    mode: '0744'
+- name: nmap
+  yum:
+    name: nmap
+    state: latest  
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: add firewalld direct rule forward port 80
+  shell:
+    cmd: firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 0 -p tcp --dport 80 -j ACCEPT  
+- name: firewall-cmd --reload
+  shell:
+    cmd: firewall-cmd --reload   
+- name: Copy file with owner and permissions
+  copy:
+    src: route-eth3
+    dest: /etc/sysconfig/network-scripts/route-eth3
+    owner: root
+    group: root
+    mode: '0644'
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: Ensure DEFROUTE=no for eth0
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^DEFROUTE='
+    line: DEFROUTE=no  
+- name: Set GATEWAY=192.168.255.1 for eth1
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth1
+    regexp: '^GATEWAY='
+    line: GATEWAY=192.168.255.1    
+- name: Reboot 
+  reboot:

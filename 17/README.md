@@ -7,7 +7,8 @@
 3) запустить nginx на centralServer  
 4) пробросить 80й порт на inetRouter2 8080  
 5) дефолт в инет оставить через inetRouter   
-
+  
+```  
 Структура сети  
   
   
@@ -17,7 +18,8 @@ centralServer  -----> centralRouter   --    inetRouter       --> internet
                       192.168.0.33     --   inetRouter2      <-- http://localhost:8080  
                       192.168.0.65          192.168.255.3  
                       
-
+```  
+  
 Стенд разворачивается из [Vagrantfile](Vagrantfile)   
 с помощью ролей ansible [inetRouter.yml](inetRouter.yml)  
 [centralRouter.yml](centralRouter.yml)  

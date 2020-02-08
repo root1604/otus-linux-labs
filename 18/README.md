@@ -45,7 +45,7 @@ OSPF
 [router2.yml](1/router2.yml)  
 [router3.yml](1/router3.yml)   
 
-Для проверки на запустим tcpdump на Router3
+Для проверки запустим tcpdump на Router3
 ```
 tcpdump -Xv -i eth1 icmp
 tcpdump -Xv -i eth2 icmp  
@@ -91,7 +91,7 @@ tcpdump -Xv -i eth2 icmp
 ```
 ansible-playbook symmetric.yml -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
 ```
-Для проверки на запустим tcpdump на Router3
+Для проверки запустим tcpdump на Router3
 ```
 tcpdump -Xv -i eth1 icmp
 tcpdump -Xv -i eth2 icmp  

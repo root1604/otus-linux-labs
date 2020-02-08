@@ -1,0 +1,7 @@
+---
+- name: router3
+  hosts: Router3
+  become: true
+  
+  roles:
+  - role: router3

@@ -1,0 +1,91 @@
+---
+# tasks file for Router3
+- name: Copy file with owner and permissions
+  copy:
+    src: vagrant
+    dest: /etc/sudoers.d/vagrant
+    owner: root
+    group: root
+    mode: '0440'
+- name: Appending the user 'vagrant'to the group 'wheel'
+  user:
+    name: vagrant
+    groups: wheel
+    append: yes
+- name: install vim
+  yum:
+    name: vim
+    state: latest
+- name: install tcpdump
+  yum:
+    name: tcpdump
+    state: latest  
+- name: Install quagga
+  yum:
+    name: quagga
+    state: latest
+- name: install the firewall
+  yum:
+    name: firewalld
+    state: latest    
+- name: Copy file zebra.conf with owner and permissions
+  copy:
+    src: zebra.conf
+    dest: /etc/quagga/zebra.conf
+    owner: quagga
+    group: quagga
+    mode: '0640'
+- name: Copy file ospfd.conf with owner and permissions
+  copy:
+    src: ospfd.conf
+    dest: /etc/quagga/ospfd.conf
+    owner: quagga
+    group: quagga
+    mode: '0640'
+- name: start the firewall
+  service:
+    name: firewalld 
+    state: started
+    enabled: true 
+- name: firewall-cmd --add-protocol=ospf --permanent
+  shell:
+    cmd: firewall-cmd --add-protocol=ospf --permanent
+- name: firewall-cmd --reload
+  shell:
+    cmd: firewall-cmd --reload
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: True  
+- name: Disable rp_filter all
+  sysctl:
+    name: net.ipv4.conf.all.rp_filter
+    value: '0'
+    state: present
+    reload: True
+- name: Disable rp_filter eth1
+  sysctl:
+    name: net.ipv4.conf.eth1.rp_filter
+    value: '0'
+    state: present
+    reload: True
+- name: Disable rp_filter eth2
+  sysctl:
+    name: net.ipv4.conf.eth2.rp_filter
+    value: '0'
+    state: present
+    reload: True
+- name: Start and Enable zebra 
+  service:
+    name: zebra
+    state: started
+    enabled: True
+- name: Start and Enable ospfd 
+  service:
+    name: ospfd
+    state: started
+    enabled: True
+- name: Reboot 
+  reboot:

@@ -1,0 +1,19 @@
+- name: symmetric routing
+  hosts: Router2
+  become: true
+  tasks:  
+  - name: Copy file ospfd.conf with owner and permissions
+    copy:
+      src: ospfd.conf
+      dest: /etc/quagga/ospfd.conf
+      owner: quagga
+      group: quagga
+      mode: '0640'
+  - name: Restart service ospfd
+    service:
+      name: ospfd
+      state: restarted
+  - name: Restart service zebra
+    service:
+      name: zebra
+      state: restarted      

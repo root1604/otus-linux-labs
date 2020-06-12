@@ -24,7 +24,7 @@ https://github.com/mbfx/otus-linux-adm/blob/master/selinux_dns_problems/
 > update add www.ddns.lab. 60 A 192.168.50.15
 > send
 update failed: SERVFAIL
->;
+>
 ```
 Заходим на сервер 192.168.50.10 и выясняем, в чем проблема  
   

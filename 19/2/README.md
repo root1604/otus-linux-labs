@@ -19,12 +19,12 @@ https://github.com/mbfx/otus-linux-adm/blob/master/selinux_dns_problems/
 При попытке удаленно (с рабочей станции 192.168.50.15) внести изменения в зону ddns.lab происходит следующее:
 ```bash
 [vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
-&gt; server 192.168.50.10
-&gt; zone ddns.lab
-&gt; update add www.ddns.lab. 60 A 192.168.50.15
-&gt; send
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
 update failed: SERVFAIL
-&gt;
+>;
 ```
 Заходим на сервер 192.168.50.10 и выясняем, в чем проблема  
   
@@ -102,11 +102,11 @@ systemctl status named
 Попробуем снова (с рабочей станции 192.168.50.15) внести изменения в зону ddns.lab:  
 ```bash
 [vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
-&gt; server 192.168.50.10
-&gt; zone ddns.lab
-&gt; update add www.ddns.lab. 60 A 192.168.50.15
-&gt; send
-&gt;
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
+>
 ```
 Теперь ошибки нет и файл named.ddns.lab.view1.jnl успешно создается в /var/named/  
   
@@ -187,11 +187,11 @@ systemctl restart named
 Попробуем снова (с рабочей станции 192.168.50.15) внести изменения в зону ddns.lab:  
 ```bash
 [vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
-&gt; server 192.168.50.10
-&gt; zone ddns.lab
-&gt; update add www.ddns.lab. 60 A 192.168.50.15
-&gt; send
-&gt;
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
+>
 ```
 Теперь ошибки нет и файл named.ddns.lab.view1.jnl успешно создается в /etc/named/dynamic/    
   
